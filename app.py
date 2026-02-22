@@ -25,7 +25,7 @@ from ui.layout import apply_custom_css
 
 
 # ============================================================================
-# Configuration
+# Configuration and Setup
 # ============================================================================
 
 st.set_page_config(
