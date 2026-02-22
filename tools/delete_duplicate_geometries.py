@@ -21,7 +21,7 @@ class DeleteDuplicateGeometriesTool(BaseTool):
 
     @property
     def description(self) -> str:
-        return "Remove duplicate/overlapping polygon geometries that contain the same area."
+        return "Remove duplicate/overlapping polygon geometries that contain the same area....."
 
     @property
     def icon(self) -> str:
