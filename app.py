@@ -19,7 +19,7 @@ from tools import (
 # Newly added duplicate-deletion tool
 from tools import DeleteDuplicateGeometriesTool
 
-# Import UI components5
+# Import UI components
 from ui.homepage import render_homepage
 from ui.layout import apply_custom_css
 
@@ -28,7 +28,7 @@ from ui.layout import apply_custom_css
 # Configuration and Setup
 # ============================================================================
 
-st.set_page_config( 
+st.set_page_config(
     page_title="Shapefile Toolkit",
     page_icon="🗺️",
     layout="wide",
@@ -43,80 +43,10 @@ st.set_page_config(
             
             **Version:** 1.0.0
             
-            Made with ❤️ by ** NikhilReddy MaliReddy**
+            Made with ❤️ by **Srinivas Dharpally**
         """
     }
-    
 )
-def futuristic_css():
-     st.markdown("""
-    <style>
-    #particles-js {
-    position: fixed;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-}
-    .stApp {
-        background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #000000);
-        background-size: 400% 400%;
-        animation: gradientBG 15s ease infinite;
-        color: white;
-    }
-
-    @keyframes gradientBG {
-        0% {background-position: 0% 50%;}
-        50% {background-position: 100% 50%;}
-        100% {background-position: 0% 50%;}
-    }
-.stApp {
-    animation: fadeInPage 1.5s ease-in;
-}
-
-@keyframes fadeInPage {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-    .card {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(20px);
-    border-radius: 20px;
-    padding: 30px;
-    transition: 0.4s ease;
-    border: 1px solid rgba(255,255,255,0.1);
-    box-shadow: 0 0 20px rgba(0,255,255,0.1);
-    animation: float 4s ease-in-out infinite;
-}
-                
-
-    .card:hover {
-        transform: translateY(-10px) scale(1.03);
-        box-shadow: 0 0 40px rgba(255,0,200,0.6);
-    }
-
-    div.stButton > button {
-        background: linear-gradient(90deg, #00f5ff, #ff00c8);
-        border: none;
-        border-radius: 30px;
-        color: white;
-        font-weight: bold;
-        padding: 12px 25px;
-        transition: 0.3s;
-    }
-
-    div.stButton > button:hover {
-        transform: scale(1.1);
-        box-shadow: 0 0 20px #ff00c8;
-    }
-
-    section[data-testid="stSidebar"] {
-        background: rgba(0,0,0,0.6);
-        backdrop-filter: blur(10px);
-    }
-
-    </style>
-    """, unsafe_allow_html=True)
-
 
 
 # ============================================================================
@@ -125,39 +55,50 @@ def futuristic_css():
 
 class ToolRegistry:
     """
-    Simple registry for managing tool instances.
+    Singleton registry for managing tool instances.
     """
-
-    def __init__(self):
-        self._tools = {}
-
-    def register_tool(self, key: str, tool):
+    _instance = None
+    _tools = None
+    
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(ToolRegistry, cls).__new__(cls)
+            cls._tools = {}
+        return cls._instance
+    
+    def register_tool(self, key: str, tool: Any) -> None:
+        """Register a tool instance."""
         self._tools[key] = tool
-
-    def get_tool(self, key: str):
+    
+    def get_tool(self, key: str) -> Any:
+        """Get a tool instance by key."""
         return self._tools.get(key)
-
-    def get_all_tools(self):
+    
+    def get_all_tools(self) -> Dict[str, Any]:
+        """Get all registered tools."""
         return self._tools
-
-    def get_tools_list(self):
+    
+    def get_tools_list(self) -> list:
+        """Get list of all tool instances."""
         return list(self._tools.values())
 
-def initialize_tools() -> ToolRegistry:
-    registry = ToolRegistry()
 
+def initialize_tools() -> ToolRegistry:
+    """
+    Initialize and register all tools.
+    
+    Returns:
+        ToolRegistry instance with all tools registered
+    """
+    registry = ToolRegistry()
+    
+    # Register all tools
     registry.register_tool("tool_0", ShapefileToCSVTool())
     registry.register_tool("tool_1", MergeShapefilesTool())
     registry.register_tool("tool_2", AddShapefilesTool())
     registry.register_tool("tool_3", ReprojectShapefileTool())
     registry.register_tool("tool_4", ExcelToCSVTool())
     registry.register_tool("tool_5", DeleteDuplicateGeometriesTool())
-
-    from tools import AddUUIDToShapefileTool, LatLongToDecimalUTMTool
-    registry.register_tool("tool_6", AddUUIDToShapefileTool())
-    registry.register_tool("tool_7", LatLongToDecimalUTMTool())
-
-    return registry
     
     # Note: TemplateTool is not registered as it's just a template
     # To add it, uncomment the following line:
@@ -239,32 +180,34 @@ def render_sidebar(registry: ToolRegistry) -> None:
 
 def main():
     """Main application entry point."""
-
-    # ✅ Always initialize session state properly
-    if "selected_tool" not in st.session_state:
-        st.session_state.selected_tool = None
-
-    # Apply CSS every rerun
+    
+    # Apply custom CSS
     apply_custom_css()
-    futuristic_css()
-
+    
+    # Initialize session state
+    initialize_session_state()
+    
     # Initialize tools
     registry = initialize_tools()
-
+    
     # Render sidebar
     render_sidebar(registry)
-
-    # Main content
-    selected_tool_key = st.session_state.get("selected_tool")
-
+    
+    # Main content area
+    selected_tool_key = st.session_state.selected_tool
+    
     if selected_tool_key is None:
+        # Show homepage
         render_homepage(registry.get_tools_list())
     else:
+        # Show selected tool
         tool = registry.get_tool(selected_tool_key)
-
-        if tool:
+        
+        if tool is not None:
+            # Render the tool's UI
             tool.render_ui()
-
+            
+            # Back to home button at the bottom
             st.divider()
             col1, col2, col3 = st.columns([1, 1, 1])
             with col2:
@@ -272,39 +215,10 @@ def main():
                     st.session_state.selected_tool = None
                     st.rerun()
         else:
-            st.session_state.selected_tool = None
-            st.rerun()
-
-    # ✅ FOOTER (Your Name)
-    st.markdown("""
-<style>
-.footer-fixed {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    text-align: center;
-    padding: 12px 0;
-    font-size: 16px;
-    font-weight: 500;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(8px);
-    border-top: 1px solid rgba(255,255,255,0.1);
-    z-index: 1000;
-}
-.footer-text {
-    background: linear-gradient(90deg, #00ffff, #ff00c8);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-</style>
-
-<div class="footer-fixed">
-    <span class="footer-text">
-            Made with ❤️ by  NikhilReddy MaliReddy
-    </span>
-</div>
-""", unsafe_allow_html=True)
+            st.error("Tool not found!")
+            if st.button("Go to Home"):
+                st.session_state.selected_tool = None
+                st.rerun()
 
 
 # ============================================================================
