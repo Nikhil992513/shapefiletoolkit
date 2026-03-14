@@ -127,7 +127,7 @@ All processing happens in your browser session. Your data is never stored on our
         <div style='text-align: center; padding: 2rem 0; color: #666;'>
             <p>
                 <strong>Shapefile Toolkit</strong> v1.0.0<br>
-                Made with ❤️ by <strong> NikhilReddy Malireddy </strong>
+                Made with ❤️ by <strong> NikhilReddy Malireddy  </strong>
             </p>
             <p style='font-size: 0.9rem;'>
                 💡 Tip: All tools support ZIP files containing shapefile components (.shp, .shx, .dbf, .prj)
